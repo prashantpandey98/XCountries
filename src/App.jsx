@@ -3,6 +3,23 @@ import "./App.css";
 
 function App() {
   const [countries, setCountries] = useState([]);
+  const [searchedCountry, setSearchedCountry] = useState("");
+  const [filteredCountries, setFilteredCountries] = useState([]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const searchTerm = searchedCountry.trim().toLowerCase();
+      if (searchTerm) {
+        const filtered = countries.filter((country) =>
+          country.name.toLowerCase().includes(searchTerm)
+        );
+        setFilteredCountries(filtered);
+      } else {
+        setFilteredCountries(countries);
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchedCountry, countries]);
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -12,6 +29,7 @@ function App() {
         );
         const data = await response.json();
         setCountries(data);
+        setFilteredCountries(data);
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
@@ -21,18 +39,29 @@ function App() {
   }, []);
 
   return (
-    <div className="countries-container">
-      {countries.map((country) => (
-        <div key={country.abbr} className="country-card">
-          <img
-            src={country.flag}
-            alt={`Flag of ${country.name}`}
-            className="country-flag"
-          />
-          <p className="country-name">{country.name}</p>
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="search-container">
+        <input
+          type="text"
+          onChange={(event) => setSearchedCountry(event.target.value)}
+          placeholder="Search countries..."
+          value={searchedCountry}
+          className="search-input"
+        />
+      </div>
+      <div className="countries-container">
+        {filteredCountries.map((country) => (
+          <div key={country.abbr} className="countryCard">
+            <img
+              src={country.flag}
+              alt={`Flag of ${country.name}`}
+              className="country-flag"
+            />
+            <p className="country-name">{country.name}</p>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 
