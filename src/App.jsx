@@ -3,29 +3,14 @@ import "./App.css";
 
 function App() {
   const [countries, setCountries] = useState([]);
-  const [searchedCountry, setSearchedCountry] = useState("");
   const [filteredCountries, setFilteredCountries] = useState([]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const searchTerm = searchedCountry.trim().toLowerCase();
-      if (searchTerm) {
-        const filtered = countries.filter((country) =>
-          country.name.toLowerCase().includes(searchTerm)
-        );
-        setFilteredCountries(filtered);
-      } else {
-        setFilteredCountries(countries);
-      }
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [searchedCountry, countries]);
+  const [searchedCountry, setSearchedCountry] = useState("");
 
   useEffect(() => {
     const fetchCountries = async () => {
       try {
         const response = await fetch(
-          "https://xcountries-backend.azurewebsites.net/all"
+          "https://countries-search-data-prod-812920491762.asia-south1.run.app/countries"
         );
         const data = await response.json();
         setCountries(data);
@@ -37,6 +22,21 @@ function App() {
 
     fetchCountries();
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const searchTerm = searchedCountry.trim().toLowerCase();
+      if (searchTerm) {
+        const filtered = countries.filter((country) =>
+          country.common.toLowerCase().includes(searchTerm)
+        );
+        setFilteredCountries(filtered);
+      } else {
+        setFilteredCountries(countries);
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchedCountry, countries]);
 
   return (
     <>
@@ -53,11 +53,11 @@ function App() {
         {filteredCountries.map((country) => (
           <div key={country.abbr} className="countryCard">
             <img
-              src={country.flag}
-              alt={`Flag of ${country.name}`}
+              src={country.png}
+              alt={`Flag of ${country.common}`}
               className="country-flag"
             />
-            <p className="country-name">{country.name}</p>
+            <p className="country-name">{country.common}</p>
           </div>
         ))}
       </div>
